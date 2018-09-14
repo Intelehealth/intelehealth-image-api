@@ -4,6 +4,7 @@ const multer = require('multer')
 const fileType = require('file-type')
 const fs = require('fs')
 const encrypt = require('../public/javascripts/encryption')
+const mysql = require('../public/javascripts/mysql/mysql')
 
 
 const storage = multer.diskStorage({
@@ -44,11 +45,18 @@ router.post('/image/upload', (req, res) => {
           // AES Encryption
           var encryption = encrypt.encrypt(base64);
           // Write on disk
+          
               fs.writeFile(req.file.path, encryption, (err) => {
                   if(err)
                   res.status(400).json({message: err.message})
                });
-         
+               var a = { 
+                image: req.file.path
+               }
+              mysql.query('insert into image SET ?', a, (err, results, fields) =>{
+              if (err) throw err
+              console.log(results);
+            })
           res.status(200).json({message: 'Image Uploaded Successfully !', path: req.file.path})
       }
   })
