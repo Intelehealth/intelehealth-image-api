@@ -31,7 +31,7 @@ var upload = multer({
 
 
 // Api to upload image
-router.post('/images/upload', (req, res) => {
+router.post('/image/upload', (req, res) => {
   
   upload(req, res, function (err) {
       

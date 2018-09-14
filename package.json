@@ -15,7 +15,7 @@
     "nodemon": "^1.18.4"
   },
   "description": "Api of ImageServer Intelehealth",
-  "main": "app.js",
+  "main": "./bin/www",
   "devDependencies": {},
   "author": "Kundan",
   "license": "ISC"
