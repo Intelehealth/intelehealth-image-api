@@ -11,7 +11,6 @@ const storage = multer.diskStorage({
       callback(null, './public/images/')
     },
   filename: function(req, file, callback) {
-      console.log(file.filename);
       callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
   }   
 })
@@ -39,19 +38,18 @@ router.post('/image/upload', (req, res) => {
           res.status(400).json({message: err.message})
 
       } else {
-          let path = 'public/images/' + `${req.file.filename}`
-          console.log(path);
+        //   let path = 'public/images/' + `${req.file.filename}`
           //base 64 encoding
-          var base64 = fs.readFileSync(`${path}`, { encoding: 'base64' })
+          var base64 = fs.readFileSync(req.file.path, { encoding: 'base64' })
           // AES Encryption
           var encryption = encrypt.encrypt(base64);
           // Write on disk
-              fs.writeFile(`${path}`, encryption, (err) => {
+              fs.writeFile(req.file.path, encryption, (err) => {
                   if(err)
                   res.status(400).json({message: err.message})
                });
          
-          res.status(200).json({message: 'Image Uploaded Successfully !', path: path})
+          res.status(200).json({message: 'Image Uploaded Successfully !', path: req.file.path})
       }
   })
 })
@@ -60,8 +58,7 @@ router.post('/image/upload', (req, res) => {
 // API to fetch image
 router.get('/image/:imagename', (req, res) => {
   let imagename = req.params.imagename
-  let imagepath ='public/images/' + imagename
-
+  let imagepath ='public/images/' + imagename + '.jpg';
   // To read AES string
   let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
   // AES decryption
