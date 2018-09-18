@@ -54,8 +54,8 @@ router.post('/image/upload', (req, res) => {
                 image: req.file.path
                }
               mysql.query('insert into image SET ?', a, (err, results, fields) =>{
-              if (err) throw err
-              console.log(results);
+              if (err) 
+              res.status(400).json({message: err.message})
             })
           res.status(200).json({message: 'Image Uploaded Successfully !', path: req.file.path})
       }
@@ -87,11 +87,12 @@ router.get('/image/:imagename', (req, res) => {
           res.writeHead(200, {'Content-Type': mime })
           res.end(image, 'binary')
           console.log('File created from base64 string!');
+          fs.unlinkSync(path);
           return true;
-        }
+        } 
       });
-    
     }
+    
 })
 
 module.exports = router;

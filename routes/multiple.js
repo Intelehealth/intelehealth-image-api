@@ -2,7 +2,9 @@ var express = require('express');
 var router = express.Router();
 var multer = require('multer');
 const fs = require('fs');
+const fileType = require('file-type')
 const encrypt = require('../public/javascripts/encryption')
+const mysql = require('../public/javascripts/mysql/mysql')
 
 var storage = multer.diskStorage({
     // destination
@@ -54,5 +56,42 @@ router.post("/", function (req, res) {
     })
 })
 
+
+router.get('/image', (req, res) => {
+    // let imagename = req.params.imagename
+    mysql.query('Select image from image', (error, result, fields) => {
+        // var a = result;
+        var i = 1;
+        // console.log(a);
+        result.forEach(element => {
+            let imagepath = element.image;
+            let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
+            let decryption = encrypt.decrypt(cipher);
+            decode_base64(decryption);
+            // Function to decode base64
+            function decode_base64(base64str){
+          
+                var buffer = Buffer.from(base64str,'base64');
+                let path = 'public/image/' + 'file' + `${i}` + '.jpg';
+                // console.log(path);
+                fs.writeFile(path, buffer, (error) => {
+                  if(error) res.status(400).json({message: err.message})  
+                });  
+            }
+            i++;
+        })
+    })
+    fs.readdir('./public/image', (err, data) => {
+        var image = []
+        data.forEach( element => {
+        image.push(fs.readFileSync('./public/image/'+ `${element}`))  
+              })
+            res.json({
+                ima: image
+            })
+            console.log(image)
+            })
+            
+})
 
 module.exports = router;
