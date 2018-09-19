@@ -31,7 +31,7 @@ var upload = multer({
 
 
 // Api to upload image
-router.post('/image/upload', (req, res) => {
+router.post('/profileimage/upload', (req, res) => {
   
   upload(req, res, function (err) {
       
@@ -67,17 +67,19 @@ router.post('/image/upload', (req, res) => {
 router.get('/image/:imagename', (req, res) => {
   let imagename = req.params.imagename
   let imagepath ='public/images/profileImages/' + imagename + '.jpg';
+  console.log(imagepath)
   // To read AES string
   let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
   // AES decryption
   let decryption = encrypt.decrypt(cipher);
+  console.log(decryption)
   
   decode_base64(decryption);
   // Function to decode base64
   function decode_base64(base64str){
 
       var buffer = Buffer.from(base64str,'base64');
-      let path = 'public/image/' + 'file.jpg'
+      let path = 'public/image/profileImage/' + 'file.jpg'
       fs.writeFile(path, buffer, (error) => {
         if(error){
           res.status(400).json({message: err.message})

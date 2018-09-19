@@ -46,8 +46,15 @@ router.post("/", function (req, res) {
                         var encryption = encrypt.encrypt(base64);
                         // Write on disk
                         fs.writeFile(file.path, encryption, (err) => {
-                    if(err)
-                    res.status(400).json({message: err.message})
+                        if(err)
+                        res.status(400).json({message: err.message})
+                        var a = { 
+                            image: file.path
+                           }
+                           mysql.query('insert into image SET ?', a, (err, results, fields) =>{
+                            if (err) 
+                            res.status(400).json({message: err.message})
+                          })
                  });
                 }
                 res.status(200).json({message: 'Image Uploaded Successfully !'})
@@ -72,26 +79,23 @@ router.get('/image', (req, res) => {
             function decode_base64(base64str){
           
                 var buffer = Buffer.from(base64str,'base64');
-                let path = 'public/image/' + 'file' + `${i}` + '.jpg';
-                // console.log(path);
-                fs.writeFile(path, buffer, (error) => {
+                let path = 'public/image/physicalImages/' + 'phyImg' + `${i}` + '.jpg';
+                //writing image file to physicalImage folder
+                fs.writeFileSync(path, buffer, (error) => {
                   if(error) res.status(400).json({message: err.message})  
                 });  
             }
             i++;
         })
-    })
-    fs.readdir('./public/image', (err, data) => {
-        var image = []
-        data.forEach( element => {
-        image.push(fs.readFileSync('./public/image/'+ `${element}`))  
-              })
-            res.json({
-                ima: image
+        //reading all the file from physicalImages folder
+        fs.readdir('./public/image/physicalImages', (err, data) => {
+            var image = []
+            data.forEach( element => {
+                image.push(`public/image/physicalImages/${element}`)
             })
-            console.log(image)
-            })
-            
+            res.status(200).json({images: image})  
+        })      
+    })                   
 })
 
 module.exports = router;

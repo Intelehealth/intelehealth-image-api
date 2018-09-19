@@ -48,6 +48,13 @@ router.post("/", function (req, res) {
                         fs.writeFile(file.path, encryption, (err) => {
                     if(err)
                     res.status(400).json({message: err.message})
+                    var a = { 
+                        image: file.path
+                       }
+                       mysql.query('insert into image SET ?', a, (err, results, fields) =>{
+                        if (err) 
+                        res.status(400).json({message: err.message})
+                      })
                  });
                 }
                 res.status(200).json({message: 'Image Uploaded Successfully !'})
@@ -56,4 +63,39 @@ router.post("/", function (req, res) {
     })
 })
 
+router.get('/image', (req, res) => {
+    // let imagename = req.params.imagename
+    mysql.query('Select image from image', (error, result, fields) => {
+        // var a = result;
+        var i = 1;
+        // console.log(a);
+        result.forEach(element => {
+            let imagepath = element.image;
+            let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
+            let decryption = encrypt.decrypt(cipher);
+            decode_base64(decryption);
+            // Function to decode base64
+            function decode_base64(base64str){
+          
+                var buffer = Buffer.from(base64str,'base64');
+                let path = 'public/image/additionalImages/' + 'addImg' + `${i}` + '.jpg';
+                //writing image file to additionalImage folder
+                fs.writeFileSync(path, buffer, (error) => {
+                  if(error) res.status(400).json({message: err.message})  
+                });  
+            }
+            i++;
+        })
+        //reading all the file from additionalImages folder
+        fs.readdir('./public/image/additionalImages', (err, data) => {
+            var image = []
+            data.forEach( element => {
+                image.push(`public/image/additionalImages/${element}`)
+            })
+            res.json({
+                    images: image
+                })
+                })
+    })          
+})
 module.exports = router;
