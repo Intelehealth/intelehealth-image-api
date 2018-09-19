@@ -1,10 +1,10 @@
-var express = require('express');
-var router = express.Router();
-var multer = require('multer');
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
 const fs = require('fs');
-const fileType = require('file-type')
-const encrypt = require('../public/javascripts/encryption')
-const mysql = require('../public/javascripts/mysql/mysql')
+const encrypt = require('../public/javascripts/encryption');
+const mysql = require('../public/javascripts/mysql/mysql');
+const deleteFile = require('../public/javascripts/deletefile');
 
 var storage = multer.diskStorage({
     // destination
@@ -66,6 +66,7 @@ router.post("/", function (req, res) {
 
 router.get('/image', (req, res) => {
     // let imagename = req.params.imagename
+    deleteFile.rmDir('public/image/physicalExamImages')
     mysql.query('Select image from image', (error, result, fields) => {
         // var a = result;
         var i = 1;
@@ -79,7 +80,7 @@ router.get('/image', (req, res) => {
             function decode_base64(base64str){
           
                 var buffer = Buffer.from(base64str,'base64');
-                let path = 'public/image/physicalImages/' + 'phyImg' + `${i}` + '.jpg';
+                let path = 'public/image/physicalExamImages/' + 'phyImg' + `${i}` + '.jpg';
                 //writing image file to physicalImage folder
                 fs.writeFileSync(path, buffer, (error) => {
                   if(error) res.status(400).json({message: err.message})  
@@ -88,10 +89,10 @@ router.get('/image', (req, res) => {
             i++;
         })
         //reading all the file from physicalImages folder
-        fs.readdir('./public/image/physicalImages', (err, data) => {
+        fs.readdir('./public/image/physicalExamImages', (err, data) => {
             var image = []
             data.forEach( element => {
-                image.push(`public/image/physicalImages/${element}`)
+                image.push(`public/image/physicalExamImages/${element}`)
             })
             res.status(200).json({images: image})  
         })      

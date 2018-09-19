@@ -1,10 +1,10 @@
-var express = require('express');
-var router = express.Router();
-var multer = require('multer');
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
 const fs = require('fs');
-const fileType = require('file-type')
-const encrypt = require('../public/javascripts/encryption')
-const mysql = require('../public/javascripts/mysql/mysql')
+const encrypt = require('../public/javascripts/encryption');
+const mysql = require('../public/javascripts/mysql/mysql');
+const deleteFile = require('../public/javascripts/deletefile');
 
 var storage = multer.diskStorage({
     // destination
@@ -65,6 +65,7 @@ router.post("/", function (req, res) {
 
 router.get('/image', (req, res) => {
     // let imagename = req.params.imagename
+    deleteFile.rmDir('public/image/additionalImages')
     mysql.query('Select image from image', (error, result, fields) => {
         // var a = result;
         var i = 1;
@@ -92,10 +93,8 @@ router.get('/image', (req, res) => {
             data.forEach( element => {
                 image.push(`public/image/additionalImages/${element}`)
             })
-            res.json({
-                    images: image
-                })
-                })
+            res.status(200).json({images: image})  
+        })
     })          
 })
 module.exports = router;
