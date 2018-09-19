@@ -9,7 +9,7 @@ const mysql = require('../public/javascripts/mysql/mysql')
 
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
-      callback(null, './public/images/')
+      callback(null, './public/images/profileImages/')
     },
   filename: function(req, file, callback) {
       callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
@@ -66,7 +66,7 @@ router.post('/image/upload', (req, res) => {
 // API to fetch image
 router.get('/image/:imagename', (req, res) => {
   let imagename = req.params.imagename
-  let imagepath ='public/images/' + imagename + '.jpg';
+  let imagepath ='public/images/profileImages/' + imagename + '.jpg';
   // To read AES string
   let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
   // AES decryption
