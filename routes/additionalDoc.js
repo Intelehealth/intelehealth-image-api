@@ -91,7 +91,7 @@ router.get('/image', (req, res) => {
         fs.readdir('./public/image/additionalImages', (err, data) => {
             var image = []
             data.forEach( element => {
-                image.push(`public/image/additionalImages/${element}`)
+                image.push('http://localhost:3000/image/additionalImages/' + `${element}`)
             })
             res.status(200).json({images: image})  
         })
