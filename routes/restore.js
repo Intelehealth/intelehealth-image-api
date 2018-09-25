@@ -9,7 +9,7 @@ const zipFile = require('../public/javascripts/zip');
 
 router.post('/', (req, res) => {
     deleteFile.rmDir('public/restore')
-    // mkdir.mkDir('public/restore');
+    mkdir.mkDir('public/restore');
     // mysql.query('Select profileImage from profileImage where patientID', (error, results) => {
     // result.forEach(element => {
     //     let imagepath = element.image;
