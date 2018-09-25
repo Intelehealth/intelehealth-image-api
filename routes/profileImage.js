@@ -3,8 +3,8 @@ var router = express.Router();
 const multer = require('multer')
 const fileType = require('file-type')
 const fs = require('fs')
-const encrypt = require('../public/javascripts/encryption')
-const mysql = require('../public/javascripts/mysql/mysql')
+const encrypt = require('../public/javascripts/encryption');
+const mysql = require('../public/javascripts/mysql/mysql');
 
 
 const storage = multer.diskStorage({
@@ -32,9 +32,9 @@ var upload = multer({
 
 // Api to upload image
 router.post('/profileimage/upload', (req, res) => {
-  
+ 
   upload(req, res, function (err) {
-      
+    // var id = req.body.patientid;
       if (err) {
           res.status(400).json({message: err.message})
 
@@ -50,14 +50,19 @@ router.post('/profileimage/upload', (req, res) => {
                   if(err)
                   res.status(400).json({message: err.message})
                });
+               console.log("hi", req.body.patientid);
                var a = { 
+                // patientName = req.body.patientid,
+                // patientId = id,
+                // patientUuid = uuid,
                 image: req.file.path
                }
-              mysql.query('insert into image SET ?', a, (err, results, fields) =>{
+              //  console.log(req.body.patientid);
+              mysql.query('Insert into image SET ?', a, (err, results, fields) =>{
               if (err) 
               res.status(400).json({message: err.message})
             })
-          res.status(200).json({message: 'Image Uploaded Successfully !', path: req.file.path})
+          res.status(200).json({message: 'Profile Image Uploaded Successfully !', path: req.file.path})
       }
   })
 })
@@ -67,16 +72,14 @@ router.post('/profileimage/upload', (req, res) => {
 router.get('/image/:imagename', (req, res) => {
   let imagename = req.params.imagename
   let imagepath ='public/images/profileImages/' + imagename + '.jpg';
-  console.log(imagepath)
   // To read AES string
   let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
   // AES decryption
   let decryption = encrypt.decrypt(cipher);
-  console.log(decryption)
   
   decode_base64(decryption);
   // Function to decode base64
-  function decode_base64(base64str){
+  function decode_base64(base64str) {
 
       var buffer = Buffer.from(base64str,'base64');
       let path = 'public/image/profileImage/' + 'file.jpg'

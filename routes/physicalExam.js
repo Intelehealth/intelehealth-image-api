@@ -66,7 +66,7 @@ router.post("/", function (req, res) {
 
 router.get('/image', (req, res) => {
     // let imagename = req.params.imagename
-    deleteFile.rmDir('public/image/physicalExamImages')
+    deleteFile.rmFile('public/image/physicalExamImages')
     mysql.query('Select image from image', (error, result, fields) => {
         // var a = result;
         var i = 1;
@@ -77,7 +77,7 @@ router.get('/image', (req, res) => {
             let decryption = encrypt.decrypt(cipher);
             decode_base64(decryption);
             // Function to decode base64
-            function decode_base64(base64str){
+            function decode_base64(base64str) {
           
                 var buffer = Buffer.from(base64str,'base64');
                 let path = 'public/image/physicalExamImages/' + 'phyImg' + `${i}` + '.jpg';

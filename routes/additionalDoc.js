@@ -65,7 +65,7 @@ router.post("/", function (req, res) {
 
 router.get('/image', (req, res) => {
     // let imagename = req.params.imagename
-    deleteFile.rmDir('public/image/additionalImages')
+    deleteFile.rmFile('public/image/additionalImages')
     mysql.query('Select image from image', (error, result, fields) => {
         // var a = result;
         var i = 1;
@@ -97,4 +97,6 @@ router.get('/image', (req, res) => {
         })
     })          
 })
+
+
 module.exports = router;

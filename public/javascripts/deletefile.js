@@ -1,7 +1,7 @@
 const fs = require('fs')
 
-module.exports = {
-    rmDir : function(dirPath) {
+
+function rmFile(dirPath) {
         var files = fs.readdirSync(dirPath); 
             if (files.length > 0)
                 for (var i = 0; i < files.length; i++) {
@@ -12,4 +12,14 @@ module.exports = {
                         rmDir(filePath);
                     }
                 }
-};
+
+function rmDir(dirPath) {
+     try{
+        fs.rmdirSync(dirPath)
+     } catch (e){
+       console.log(e); 
+     }
+}
+
+
+module.exports = { rmFile, rmDir }
