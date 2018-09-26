@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
       callback(null, './public/images/profileImages/')
     },
   filename: function(req, file, callback) {
-      callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
+      callback(null, req.body.patientid + "_" + file.originalname);
   }   
 })
 
@@ -50,15 +50,12 @@ router.post('/profileimage/upload', (req, res) => {
                   if(err)
                   res.status(400).json({message: err.message})
                });
-               console.log("hi", req.body.patientid);
                var a = { 
-                // patientName = req.body.patientid,
-                // patientId = id,
-                // patientUuid = uuid,
-                image: req.file.path
+                visit_id : req.body.visitid,
+                patient_id : req.body.patientid,
+                path: req.file.path
                }
-              //  console.log(req.body.patientid);
-              mysql.query('Insert into image SET ?', a, (err, results, fields) =>{
+              mysql.query('Insert into image_profileimage SET ?', a, (err, results, fields) =>{
               if (err) 
               res.status(400).json({message: err.message})
             })
@@ -69,35 +66,37 @@ router.post('/profileimage/upload', (req, res) => {
 
 
 // API to fetch image
-router.get('/image/:imagename', (req, res) => {
-  let imagename = req.params.imagename
-  let imagepath ='public/images/profileImages/' + imagename + '.jpg';
-  // To read AES string
-  let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
-  // AES decryption
-  let decryption = encrypt.decrypt(cipher);
-  
-  decode_base64(decryption);
-  // Function to decode base64
-  function decode_base64(base64str) {
-
-      var buffer = Buffer.from(base64str,'base64');
-      let path = 'public/image/profileImage/' + 'file.jpg'
-      fs.writeFile(path, buffer, (error) => {
-        if(error){
-          res.status(400).json({message: err.message})
-        }else{
-          var image = fs.readFileSync(path);
-          let mime = fileType(image).mime;
-          res.writeHead(200, {'Content-Type': mime })
-          res.end(image, 'binary')
-          console.log('File created from base64 string!');
-          fs.unlinkSync(path);
-          return true;
-        } 
-      });
-    }
+router.get('/image/:patientid', (req, res) => {
+  mysql.query('Select path from image_profileimage where patient_id = "'+req.params.patientid+'"', (error, result) => {
+    result.forEach(element => {
+      let imagepath =element.path;
+          // To read AES string
+          let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
+          // AES decryption
+          let decryption = encrypt.decrypt(cipher);
+      
+          decode_base64(decryption);
+          // Function to decode base64
+          function decode_base64(base64str) {
     
+          var buffer = Buffer.from(base64str,'base64');
+          let path = 'public/image/profileImage/' + 'file.jpg'
+          fs.writeFile(path, buffer, (error) => {
+            if(error){
+              res.status(400).json({message: err.message})
+            }else{
+              var image = fs.readFileSync(path);
+              let mime = fileType(image).mime;
+              res.writeHead(200, {'Content-Type': mime })
+              res.end(image, 'binary');
+              console.log('File created from base64 string!');
+              fs.unlinkSync(path);
+              return true;
+            } 
+          })
+        }
+    });
+  })
 })
 
 module.exports = router;

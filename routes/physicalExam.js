@@ -12,7 +12,7 @@ var storage = multer.diskStorage({
       cb(null, './public/images/physicalExamImages/')
     },
     filename: function(req, file, callback) {
-        callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
+        callback(null, req.body.patientid + "_" + file.originalname);
     }
 })
 
@@ -48,10 +48,12 @@ router.post("/", function (req, res) {
                         fs.writeFile(file.path, encryption, (err) => {
                         if(err)
                         res.status(400).json({message: err.message})
-                        var a = { 
-                            image: file.path
+                        var a = {
+                            visit_id : req.body.visitid,
+                            patient_id : req.body.patientid, 
+                            path: file.path
                            }
-                           mysql.query('insert into image SET ?', a, (err, results, fields) =>{
+                           mysql.query('Insert into image_physicalexam SET ?', a, (err, results, fields) =>{
                             if (err) 
                             res.status(400).json({message: err.message})
                           })
@@ -65,14 +67,13 @@ router.post("/", function (req, res) {
 
 
 router.get('/image', (req, res) => {
-    // let imagename = req.params.imagename
     deleteFile.rmFile('public/image/physicalExamImages')
-    mysql.query('Select image from image', (error, result, fields) => {
-        // var a = result;
+    mysql.query('Select path from image_physicalexam where patient_id = "'+req.query.patientid+'" and visit_id = "'+req.query.visitid+'"', (error, result) => {
+       
         var i = 1;
         // console.log(a);
         result.forEach(element => {
-            let imagepath = element.image;
+            let imagepath = element.path;
             let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
             let decryption = encrypt.decrypt(cipher);
             decode_base64(decryption);

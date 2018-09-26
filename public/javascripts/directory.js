@@ -10,12 +10,5 @@ const fs = require('fs');
             fs.mkdirSync(directory);
             console.log('folder created')
         }
-        // try {
-        //     fs.statSync('./public/images/' + `${patientid}` + '/' + `${visitid}`);
-        //     console.log('folder exist')
-        //   } catch(e) {
-        //     fs.mkdirSync('./public/images/' + `${patientid}` + '/' + `${visitid}`);
-        //     console.log('visit folder created')
-        //   }
     }
 }

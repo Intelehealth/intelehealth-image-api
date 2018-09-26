@@ -12,7 +12,7 @@ var storage = multer.diskStorage({
       cb(null, './public/images/additionalImages/')
     },
     filename: function(req, file, callback) {
-        callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
+        callback(null, req.body.patientid + "_" + file.originalname);
     }
 })
 
@@ -49,9 +49,11 @@ router.post("/", function (req, res) {
                     if(err)
                     res.status(400).json({message: err.message})
                     var a = { 
-                        image: file.path
+                        visit_id : req.body.visitid,
+                        patient_id : req.body.patientid,
+                        path : file.path
                        }
-                       mysql.query('insert into image SET ?', a, (err, results, fields) =>{
+                       mysql.query('Insert into image_additionaldoc SET ?', a, (err, results, fields) =>{
                         if (err) 
                         res.status(400).json({message: err.message})
                       })
@@ -66,12 +68,12 @@ router.post("/", function (req, res) {
 router.get('/image', (req, res) => {
     // let imagename = req.params.imagename
     deleteFile.rmFile('public/image/additionalImages')
-    mysql.query('Select image from image', (error, result, fields) => {
+    mysql.query('Select path from image_additionaldoc where patient_id = "'+req.query.patientid+'" and visit_id = "'+req.query.visitid+'"', (error, result, fields) => {
         // var a = result;
         var i = 1;
-        // console.log(a);
+        console.log(result);
         result.forEach(element => {
-            let imagepath = element.image;
+            let imagepath = element.path;
             let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
             let decryption = encrypt.decrypt(cipher);
             decode_base64(decryption);

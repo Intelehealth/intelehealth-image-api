@@ -10,9 +10,9 @@ const zipFile = require('../public/javascripts/zip');
 router.post('/', (req, res) => {
     deleteFile.rmDir('public/restore')
     mkdir.mkDir('public/restore');
-    // mysql.query('Select profileImage from profileImage where patientID', (error, results) => {
+    // mysql.query('Select path from image_profileimage where patient_id = "'+req.params.patientid+'"', (error, results) => {
     // result.forEach(element => {
-    //     let imagepath = element.image;
+    //     let imagepath = element.path;
     //     let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
     //     let decryption = encrypt.decrypt(cipher);
     //     decode_base64(decryption);
@@ -29,9 +29,9 @@ router.post('/', (req, res) => {
     //     }
     // })
     // })
-    // mysql.query('Select physicalExam from physicalImage where ', (error, results) => {
+    // mysql.query('Select path from image_physicalexam where patient_id = "'+req.query.patientid+'" and visit_id = "'+req.query.visitid+'" ', (error, results) => {
     //     result.forEach(element => {
-    //         let imagepath = element.image;
+    //         let imagepath = element.path;
     //         let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
     //         let decryption = encrypt.decrypt(cipher);
     //         decode_base64(decryption);
@@ -48,9 +48,9 @@ router.post('/', (req, res) => {
     //         }
     //     })
     // })
-    // mysql.query('Select physicalExam from additionalImage where ', (error, results) => {
+    // mysql.query('Select path from image_additionaldoc where patient_id = "'+req.query.patientid+'" and visit_id = "'+req.query.visitid+'"', (error, results) => {
     //     result.forEach(element => {
-    //         let imagepath = element.image;
+    //         let imagepath = element.path;
     //         let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
     //         let decryption = encrypt.decrypt(cipher);
     //         decode_base64(decryption);
@@ -67,11 +67,8 @@ router.post('/', (req, res) => {
     //         }
     //     })
     // })
-    // zipFile.zip()
-    res.json({
-        status: 200,
-        message: 'sucess'
-    })
+    zipFile.zip()
+    res.sendFile();
 
 })
 
