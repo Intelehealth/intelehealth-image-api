@@ -39,7 +39,6 @@ router.post("/", function (req, res) {
                     res.status(400).json({message: err.message})
                 } else {
                     for (const file of req.files) {
-                        // let path = 'public/images/' + file.filename;
                         //base 64 encoding
                         var base64 = fs.readFileSync(file.path, { encoding: 'base64' })
                         // AES Encryption
@@ -48,15 +47,18 @@ router.post("/", function (req, res) {
                         fs.writeFile(file.path, encryption, (err) => {
                         if(err)
                         res.status(400).json({message: err.message})
+                        else{
                         var a = {
                             visit_id : req.body.visitid,
                             patient_id : req.body.patientid, 
-                            path: file.path
+                            path: file.path,
+                            file_name: file.originalname
                            }
                            mysql.query('Insert into image_physicalexam SET ?', a, (err, results, fields) =>{
                             if (err) 
                             res.status(400).json({message: err.message})
                           })
+                        }
                  });
                 }
                 res.status(200).json({message: 'Image Uploaded Successfully !'})
@@ -68,10 +70,10 @@ router.post("/", function (req, res) {
 
 router.get('/image', (req, res) => {
     deleteFile.rmFile('public/image/physicalExamImages')
-    mysql.query('Select path from image_physicalexam where patient_id = "'+req.query.patientid+'" and visit_id = "'+req.query.visitid+'"', (error, result) => {
-       
-        var i = 1;
-        // console.log(a);
+    mysql.query('Select path, file_name from image_physicalexam where patient_id = "'+req.query.patientid+'" and visit_id = "'+req.query.visitid+'"', (error, result) => {
+        if(error)
+        res.status(400).json({message: error.message})
+        else {
         result.forEach(element => {
             let imagepath = element.path;
             let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
@@ -81,21 +83,24 @@ router.get('/image', (req, res) => {
             function decode_base64(base64str) {
           
                 var buffer = Buffer.from(base64str,'base64');
-                let path = 'public/image/physicalExamImages/' + 'phyImg' + `${i}` + '.jpg';
+                let path = 'public/image/physicalExamImages/' + `${element.file_name}`;
                 //writing image file to physicalImage folder
                 fs.writeFileSync(path, buffer, (error) => {
-                  if(error) res.status(400).json({message: err.message})  
+                  if(error) res.status(400).json({message: error.message})  
                 });  
             }
-            i++;
         })
+    }
         //reading all the file from physicalImages folder
         fs.readdir('./public/image/physicalExamImages', (err, data) => {
+            if(err) res.status(400).json({message: err.message})
+            else {
             var image = []
             data.forEach( element => {
                 image.push('http://localhost:3000/image/physicalExamImages/'+`${element}`)
             })
             res.status(200).json({images: image})  
+        }
         })      
     })                   
 })

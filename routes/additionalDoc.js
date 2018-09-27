@@ -48,15 +48,18 @@ router.post("/", function (req, res) {
                         fs.writeFile(file.path, encryption, (err) => {
                     if(err)
                     res.status(400).json({message: err.message})
+                    else{
                     var a = { 
                         visit_id : req.body.visitid,
                         patient_id : req.body.patientid,
-                        path : file.path
+                        path : file.path,
+                        file_name : file.originalname
                        }
                        mysql.query('Insert into image_additionaldoc SET ?', a, (err, results, fields) =>{
                         if (err) 
                         res.status(400).json({message: err.message})
                       })
+                    }
                  });
                 }
                 res.status(200).json({message: 'Image Uploaded Successfully !'})
@@ -66,12 +69,11 @@ router.post("/", function (req, res) {
 })
 
 router.get('/image', (req, res) => {
-    // let imagename = req.params.imagename
     deleteFile.rmFile('public/image/additionalImages')
-    mysql.query('Select path from image_additionaldoc where patient_id = "'+req.query.patientid+'" and visit_id = "'+req.query.visitid+'"', (error, result, fields) => {
-        // var a = result;
-        var i = 1;
-        console.log(result);
+    mysql.query('Select path, file_name from image_additionaldoc where patient_id = "'+req.query.patientid+'" and visit_id = "'+req.query.visitid+'"', (error, result, fields) => {
+        if(error)
+        res.status(400).json({message: error.message})
+        else {
         result.forEach(element => {
             let imagepath = element.path;
             let cipher = fs.readFileSync(imagepath, {encoding: 'binary'});
@@ -81,21 +83,24 @@ router.get('/image', (req, res) => {
             function decode_base64(base64str){
           
                 var buffer = Buffer.from(base64str,'base64');
-                let path = 'public/image/additionalImages/' + 'addImg' + `${i}` + '.jpg';
+                let path = 'public/image/additionalImages/' + `${element.file_name}`;
                 //writing image file to additionalImage folder
                 fs.writeFileSync(path, buffer, (error) => {
-                  if(error) res.status(400).json({message: err.message})  
+                  if(error) res.status(400).json({message: error.message})  
                 });  
             }
-            i++;
         })
+    }
         //reading all the file from additionalImages folder
         fs.readdir('./public/image/additionalImages', (err, data) => {
+            if(err) res.status(400).json({message: err.message})
+            else{
             var image = []
             data.forEach( element => {
                 image.push('http://localhost:3000/image/additionalImages/' + `${element}`)
             })
             res.status(200).json({images: image})  
+        }
         })
     })          
 })

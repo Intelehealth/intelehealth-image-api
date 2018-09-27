@@ -53,7 +53,8 @@ router.post('/profileimage/upload', (req, res) => {
                var a = { 
                 visit_id : req.body.visitid,
                 patient_id : req.body.patientid,
-                path: req.file.path
+                path: req.file.path,
+                file_name: req.file.originalname
                }
               mysql.query('Insert into image_profileimage SET ?', a, (err, results, fields) =>{
               if (err) 
@@ -66,8 +67,9 @@ router.post('/profileimage/upload', (req, res) => {
 
 
 // API to fetch image
-router.get('/image/:patientid', (req, res) => {
-  mysql.query('Select path from image_profileimage where patient_id = "'+req.params.patientid+'"', (error, result) => {
+router.get('/profileimage', (req, res) => {
+  // console.log()
+  mysql.query('Select path, file_name from image_profileimage where patient_id = "'+req.query.patientid+'" and visit_id = "'+req.query.visitid+'"', (error, result) => {
     result.forEach(element => {
       let imagepath =element.path;
           // To read AES string
@@ -80,7 +82,7 @@ router.get('/image/:patientid', (req, res) => {
           function decode_base64(base64str) {
     
           var buffer = Buffer.from(base64str,'base64');
-          let path = 'public/image/profileImage/' + 'file.jpg'
+          let path = 'public/image/profileImage/' + `${element.file_name}`
           fs.writeFile(path, buffer, (error) => {
             if(error){
               res.status(400).json({message: err.message})
@@ -90,7 +92,7 @@ router.get('/image/:patientid', (req, res) => {
               res.writeHead(200, {'Content-Type': mime })
               res.end(image, 'binary');
               console.log('File created from base64 string!');
-              fs.unlinkSync(path);
+              // fs.unlinkSync(path);
               return true;
             } 
           })
